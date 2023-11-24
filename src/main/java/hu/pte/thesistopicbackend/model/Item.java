@@ -1,17 +1,15 @@
 package hu.pte.thesistopicbackend.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Table(name = "items")
 public class Item {
     @Id
@@ -20,7 +18,7 @@ public class Item {
     private String name;
     private int price;
     private String currency;
-    private String mapurl;
+    private String mapUrl;
     private String description;
 
     // getters és setters

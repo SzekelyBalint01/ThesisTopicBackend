@@ -1,5 +1,6 @@
 package hu.pte.thesistopicbackend.service;
 
+import hu.pte.thesistopicbackend.dto.InviteUserDto;
 import hu.pte.thesistopicbackend.dto.NewGroupDto;
 import hu.pte.thesistopicbackend.model.*;
 import hu.pte.thesistopicbackend.repository.*;
@@ -8,36 +9,47 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class GroupService {
     private final GroupRepository groupRepository;
-    private final GroupConnectToUserRepository groupConnectToUser;
+    private final GroupConnectToUserRepository groupConnectToUserRepository;
     private final ItemConnectToUserRepository itemConnectToUser;
 
-
+    private final ItemConnectToGroupRepository itemConnectToGroupRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
 
+    private final PaymentService paymentService;
+
     public GroupService(GroupRepository groupRepository,
-                        GroupConnectToUserRepository groupConnectToUser,
-                        ItemConnectToUserRepository itemConnectToUser, ItemRepository itemRepository,
-                        UserRepository userRepository) {
+                        GroupConnectToUserRepository groupConnectToUserRepository, ItemConnectToUserRepository itemConnectToUser,
+                        ItemConnectToGroupRepository itemConnectToGroupRepository, ItemRepository itemRepository,
+                        UserRepository userRepository, PaymentService paymentService) {
         this.groupRepository = groupRepository;
-        this.groupConnectToUser = groupConnectToUser;
+        this.groupConnectToUserRepository = groupConnectToUserRepository;
         this.itemConnectToUser = itemConnectToUser;
+        this.itemConnectToGroupRepository = itemConnectToGroupRepository;
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
+        this.paymentService = paymentService;
     }
 
-    public GroupEssential createGroup(NewGroupDto newGroupDto) {
+    public GroupEssential createGroup(NewGroupDto newGroupDto, Long userId) {
         GroupEssential group = GroupEssential.builder()
                 .groupName(newGroupDto.getGroupName())
                 .build();
 
         groupRepository.save(group);
 
+        GroupConnectToUser newConnection = GroupConnectToUser.builder()
+                .groupId(group.getId())
+                .userId(userId)
+                .build();
+
+        groupConnectToUserRepository.save(newConnection);
 
         return group;
     }
@@ -46,17 +58,21 @@ public class GroupService {
 
 
         GroupEssential groupEssential = groupRepository.findById(groupId).orElseThrow(()-> new EntityNotFoundException());
-        ArrayList<ItemConnectToUser> itemList = itemConnectToUser.findItemByGroupId(groupId);
-        ArrayList<GroupConnectToUser> userList = groupConnectToUser.findUserByGroupId(groupId);
+        ArrayList<ItemConnectToGroup> itemList = itemConnectToGroupRepository.findItemByGroupId(groupId);
+        ArrayList<GroupConnectToUser> userList = groupConnectToUserRepository.findUserByGroupId(groupId);
 
         ArrayList<Item> items = new ArrayList<>();
-        for (ItemConnectToUser itemConnectToGroup: itemList) {
-            items.add(itemRepository.findById(itemConnectToGroup.getItem()).orElseThrow(()-> new FileNotFoundException()));
+        for (ItemConnectToGroup itemConnectToGroup: itemList) {
+            items.add(itemRepository.findById(itemConnectToGroup.getItemId()).orElseThrow(()-> new FileNotFoundException()));
         }
 
-        ArrayList<String> users = new ArrayList<>();
+        ArrayList<String []> users = new ArrayList<>();
         for (GroupConnectToUser groupConnectToUser: userList) {
-            users.add(userRepository.findById(groupConnectToUser.getUser()).orElseThrow(()-> new FileNotFoundException()).getUsername());
+            String[] user = {
+                    String.valueOf(userRepository.findById(groupConnectToUser.getUserId()).orElseThrow(()-> new FileNotFoundException()).getId()),
+                    userRepository.findById(groupConnectToUser.getUserId()).orElseThrow(()-> new FileNotFoundException()).getUsername()
+            };
+            users.add(user);
         }
 
 
@@ -67,6 +83,77 @@ public class GroupService {
                 .Users(users)
                 .build();
 
-        return null;
+        return group;
+    }
+
+    public List<GroupEssential> getAllGroupByUserId(Long userId){
+        List<GroupConnectToUser> groups = groupConnectToUserRepository.findByUserId(userId) ;
+        List<GroupEssential> groupEssentials = new ArrayList<>();
+
+        for (GroupConnectToUser groupConnectToUser: groups) {
+            groupEssentials.add(groupRepository.findById(groupConnectToUser.getGroupId()).orElseThrow(()-> new EntityNotFoundException()));
+        }
+
+
+        return groupEssentials;
+    }
+
+
+    public String inviteUser(InviteUserDto inviteUserDto) {
+
+        Optional<User> user = userRepository.findByEmail(inviteUserDto.getEmail());
+
+        boolean exits = groupConnectToUserRepository.existsByGroupIdAndUserId((long) inviteUserDto.getGroupId(), user.get().getId());
+
+        if (user.isPresent() && exits == false) {
+
+            GroupConnectToUser groupConnectToUser = GroupConnectToUser.builder()
+                    .userId(user.get().getId())
+                    .groupId((long) inviteUserDto.getGroupId())
+                    .build();
+            groupConnectToUserRepository.save(groupConnectToUser);
+            return "Invite successful";
+        }
+        else{
+            return "User does not exists or already exists";
+        }
+    }
+
+    public List<GroupUser> getAllUserByGroupId(InviteUserDto inviteUserDto) {
+
+        ArrayList<GroupConnectToUser> groupConnectToUsers = groupConnectToUserRepository.findUserByGroupId((long) inviteUserDto.getGroupId());
+
+        return getUserList(groupConnectToUsers, inviteUserDto.getGroupId());
+    }
+
+    public List<GroupUser> getAllUserByGroupId(int groupId) {
+
+        ArrayList<GroupConnectToUser> groupConnectToUsers = groupConnectToUserRepository.findUserByGroupId((long) groupId);
+
+        return getUserList(groupConnectToUsers,groupId);
+    }
+
+    private List<GroupUser> getUserList(ArrayList<GroupConnectToUser> groupConnectToUsers, int groupId) {
+        ArrayList<GroupUser> groupUsers = new ArrayList<>();
+
+        for ( GroupConnectToUser users: groupConnectToUsers) {
+
+            Optional<User> user = userRepository.findById(users.getUserId());
+
+
+
+            if (user.isPresent()){
+
+                GroupUser groupUser = GroupUser.builder()
+                        .id(user.get().getId())
+                        .username(user.get().getUsername())
+                        .debt(paymentService.userDebt(groupId))
+                        .build();
+
+                groupUsers.add(groupUser);
+            }
+        }
+
+        return groupUsers;
     }
 }

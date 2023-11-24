@@ -1,6 +1,7 @@
 package hu.pte.thesistopicbackend.controller;
 
 import hu.pte.thesistopicbackend.dto.UserDto;
+import hu.pte.thesistopicbackend.model.User;
 import hu.pte.thesistopicbackend.service.Registration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +20,10 @@ public class RegistrationController {
 
     @PostMapping("/registration")
     public ResponseEntity<String> Registration(@RequestBody UserDto userDto){
-
-        if (registration.addNewUser(userDto)){
-
+        boolean user = registration.createUser(userDto);
+        if (user){
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        return new ResponseEntity<>("Username already exists",HttpStatus.CONFLICT);
+        return new ResponseEntity<>("This email already registered",HttpStatus.CONFLICT);
     }
 }

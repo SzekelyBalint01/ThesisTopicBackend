@@ -17,7 +17,7 @@ public class Group {
     private String groupName;
     private ArrayList<Item> Items;
 
-    private ArrayList<String> Users;
+    private ArrayList<String[]> Users;
 
 
 }

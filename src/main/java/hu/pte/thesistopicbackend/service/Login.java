@@ -1,30 +1,38 @@
 package hu.pte.thesistopicbackend.service;
 
 import hu.pte.thesistopicbackend.dto.CredentialsDto;
+import hu.pte.thesistopicbackend.dto.UserDto;
 import hu.pte.thesistopicbackend.model.User;
 import hu.pte.thesistopicbackend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
+import java.util.Optional;
 
 @Service
 public class Login {
 
     private final UserRepository userRepository;
 
-    public Login(UserRepository userRepository) {
+    private final PasswordEncoderImpl passwordEncoderImpl;
+
+    public Login(UserRepository userRepository, PasswordEncoderImpl passwordEncoderImpl) {
         this.userRepository = userRepository;
+        this.passwordEncoderImpl = passwordEncoderImpl;
     }
 
-    public User userAuth(CredentialsDto credentialsDto) throws FileNotFoundException {
+    public boolean authentication(CredentialsDto credentialsDto) throws FileNotFoundException {
 
-       User user = userRepository.findByEmail(credentialsDto.getEmail()).orElseThrow(()-> new FileNotFoundException());
+        boolean authenticated = passwordEncoderImpl.auth(credentialsDto.getPassword(), credentialsDto.getEmail());
 
-        if (user.getEmail().equals(credentialsDto.getEmail()) && user.getPassword().equals(credentialsDto.getPassword())){
+        return authenticated;
+    }
 
-            return user;
-        }
 
-        return null;
+    public Optional<User> getUserByEmail(CredentialsDto credentialsDto){
+
+        Optional<User> user = userRepository.findByEmail(credentialsDto.getEmail());
+
+        return user;
     }
 }

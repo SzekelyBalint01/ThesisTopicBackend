@@ -1,9 +1,6 @@
 package hu.pte.thesistopicbackend.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import jakarta.persistence.*;
 
@@ -12,14 +9,15 @@ import jakarta.persistence.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Table(name = "groupsConnectToUser")
 public class GroupConnectToUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long group;
-    private Long user;
+    private Long groupId;
+    private Long userId;
 
     // getters és setters
 }
