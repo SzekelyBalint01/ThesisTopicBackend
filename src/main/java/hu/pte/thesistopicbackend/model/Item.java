@@ -20,6 +20,6 @@ public class Item {
     private String currency;
     private String mapUrl;
     private String description;
-
+    private Long paid;
     // getters és setters
 }

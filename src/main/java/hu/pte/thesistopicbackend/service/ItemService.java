@@ -84,7 +84,6 @@ public class ItemService {
 
     }
 
-
     public Item getItemById(long itemId) {
         Item item = itemRepository.findById(itemId).orElseThrow(()-> new EntityNotFoundException());
         return item;

@@ -13,4 +13,6 @@ public class GroupUser {
     private Long id;
 
     private int debt;
+
+
 }

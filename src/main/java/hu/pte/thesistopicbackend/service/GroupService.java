@@ -22,18 +22,21 @@ public class GroupService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
 
+    private final ItemService itemService;
+
     private final PaymentService paymentService;
 
     public GroupService(GroupRepository groupRepository,
                         GroupConnectToUserRepository groupConnectToUserRepository, ItemConnectToUserRepository itemConnectToUser,
                         ItemConnectToGroupRepository itemConnectToGroupRepository, ItemRepository itemRepository,
-                        UserRepository userRepository, PaymentService paymentService) {
+                        UserRepository userRepository, ItemService itemService, PaymentService paymentService) {
         this.groupRepository = groupRepository;
         this.groupConnectToUserRepository = groupConnectToUserRepository;
         this.itemConnectToUser = itemConnectToUser;
         this.itemConnectToGroupRepository = itemConnectToGroupRepository;
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
+        this.itemService = itemService;
         this.paymentService = paymentService;
     }
 
@@ -126,11 +129,37 @@ public class GroupService {
         return getUserList(groupConnectToUsers, inviteUserDto.getGroupId());
     }
 
-    public List<GroupUser> getAllUserByGroupId(int groupId) {
+    public List<GroupUser> getAllUserByGroupId(int groupId, int userId) {
+
+        List<Item> groupItems = itemService.getAllItemByGroupId(Long.valueOf(groupId));
 
         ArrayList<GroupConnectToUser> groupConnectToUsers = groupConnectToUserRepository.findUserByGroupId((long) groupId);
 
-        return getUserList(groupConnectToUsers,groupId);
+        List<GroupUser> groupUsers = getUserList(groupConnectToUsers,groupId);
+        if (groupItems == null){
+            return groupUsers;
+        }
+        for (Item item : groupItems) {
+            int price = item.getPrice();
+            ArrayList<User>  usersId = itemConnectToUser.findUsersByItemId(item.getId());
+            Long paid = item.getPaid();
+
+
+            int debtPerPerson = price/usersId.size();
+
+            for (int i = 0; i < groupUsers.size(); i++) {
+                for (int j = 0; j < usersId.size(); j++) {
+                    if (groupUsers.get(i).getId() == usersId.get(j).getId()){
+                        groupUsers.get(i).setDebt(
+                                groupUsers.get(i).getDebt()+debtPerPerson
+                        );
+                    }
+                }
+            }
+        }
+
+
+        return groupUsers;
     }
 
     private List<GroupUser> getUserList(ArrayList<GroupConnectToUser> groupConnectToUsers, int groupId) {

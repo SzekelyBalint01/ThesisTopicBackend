@@ -70,9 +70,9 @@ public class GroupController {
 
 
     @GetMapping("/getAllGroupUser")
-    public ResponseEntity<List<GroupUser>> getAllGroupUser(@RequestParam("groupId") int groupId){
+    public ResponseEntity<List<GroupUser>> getAllGroupUser(@RequestParam("groupId") int groupId, int userId){
 
-        List<GroupUser> usersList = groupService.getAllUserByGroupId(groupId);
+        List<GroupUser> usersList = groupService.getAllUserByGroupId(groupId, userId);
 
         return new ResponseEntity<>(usersList,HttpStatus.OK);
     }
