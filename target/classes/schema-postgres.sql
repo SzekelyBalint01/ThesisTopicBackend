@@ -1,4 +1,4 @@
-
+/*
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS items;
 DROP TABLE IF EXISTS groups;
@@ -24,7 +24,7 @@ DROP TABLE IF EXISTS item_connect_to_groups;
                           currency varchar(4),
                           map_url varchar(16384),
                           description varchar(250),
-                          payed int
+                          paid int
     );
 
     CREATE TABLE groups(
@@ -42,18 +42,8 @@ DROP TABLE IF EXISTS item_connect_to_groups;
                                       item_id int
     );
 
-    CREATE TABLE debt_connect_to_user(
-
-
-    );
-
-    CREATE TABLE debt (
-                          id SERIAL PRIMARY KEY,
-                          price int,
-                          currency varchar (4)
-    );
-
     CREATE TABLE item_connect_to_groups(
                             group_id SERIAL,
                             item_id SERIAL
     );
+*/
