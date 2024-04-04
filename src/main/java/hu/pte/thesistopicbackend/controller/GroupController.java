@@ -1,15 +1,12 @@
 package hu.pte.thesistopicbackend.controller;
 
+import hu.pte.thesistopicbackend.dto.GroupDto;
 import hu.pte.thesistopicbackend.dto.InviteUserDto;
 import hu.pte.thesistopicbackend.dto.NewGroupDto;
 import hu.pte.thesistopicbackend.dto.UsersListDto;
 import hu.pte.thesistopicbackend.model.Group;
-import hu.pte.thesistopicbackend.model.GroupEssential;
 import hu.pte.thesistopicbackend.model.GroupUser;
-import hu.pte.thesistopicbackend.repository.UserRepository;
 import hu.pte.thesistopicbackend.service.GroupService;
-import hu.pte.thesistopicbackend.service.ItemService;
-import hu.pte.thesistopicbackend.service.PaymentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,35 +19,32 @@ public class GroupController {
 
 
     private final GroupService groupService;
-    private final UserRepository userRepository;
 
 
-    public GroupController(GroupService groupService, ItemService itemService,
-                           UserRepository userRepository, PaymentService paymentService) {
+    public GroupController(GroupService groupService) {
         this.groupService = groupService;
-        this.userRepository = userRepository;
     }
 
     @PostMapping("/createGroup")
-    public ResponseEntity<GroupEssential> newGroup(@RequestBody NewGroupDto newGroupDto, @RequestParam int userId ){
-        GroupEssential group = groupService.createGroup(newGroupDto, (long) userId);
-        return new ResponseEntity<>(group, HttpStatus.CREATED);
+    public ResponseEntity<GroupDto> newGroup(@RequestBody NewGroupDto newGroupDto, @RequestParam int userId ){
+        GroupDto groupDto = groupService.createGroup(newGroupDto, (long) userId);
+        return new ResponseEntity<>(groupDto, HttpStatus.CREATED);
     }
 
 
 
     @GetMapping("groupData")
-    public ResponseEntity<Group> getGroupDataById(@RequestParam int groupId) throws FileNotFoundException {
+    public ResponseEntity<GroupDto> getGroupDataById(@RequestParam int groupId) throws FileNotFoundException {
 
-        Group group = groupService.getGroupById((long) groupId);
+        GroupDto groupDto = groupService.getGroupById((long) groupId);
 
-        return new ResponseEntity<>(group, HttpStatus.OK);
+        return new ResponseEntity<>(groupDto, HttpStatus.OK);
     }
 
     @GetMapping("/allGroup")
-    public  ResponseEntity<List<GroupEssential>> getAllGroupByUserId(@RequestParam("userId") int userId){
+    public ResponseEntity<List<Group>> getAllGroupByUserId(@RequestParam("userId") int userId){
 
-        List<GroupEssential> groups = groupService.getAllGroupByUserId((long) userId);
+        List<Group> groups = groupService.getAllGroupByUserId((long) userId);
 
         return new ResponseEntity<>(groups, HttpStatus.OK);
     }
@@ -72,7 +66,7 @@ public class GroupController {
     @GetMapping("/getAllGroupUser")
     public ResponseEntity<List<GroupUser>> getAllGroupUser(@RequestParam("groupId") int groupId, int userId){
 
-        List<GroupUser> usersList = groupService.getAllUserByGroupId(groupId, userId);
+        List<GroupUser> usersList = groupService.getAllUserByGroupId((long)groupId, userId);
 
         return new ResponseEntity<>(usersList,HttpStatus.OK);
     }

@@ -1,23 +1,31 @@
 package hu.pte.thesistopicbackend.model;
 
+import jakarta.persistence.*;
 import lombok.*;
-
-import javax.persistence.Entity;
-import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "groups")
 @Builder
 public class Group {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String groupName;
-    private ArrayList<Item> Items;
 
-    private ArrayList<String[]> Users;
+    private String groupName;
+
+
+    @OneToMany(mappedBy = "group")
+    private List<ItemConnectToGroup> itemConnectToGroup;
+
+
+    @OneToMany(mappedBy = "group")
+    private List<GroupConnectToUser> groupConnectToUsers;
 
 
 }

@@ -1,17 +1,15 @@
 package hu.pte.thesistopicbackend.service;
 
 import hu.pte.thesistopicbackend.dto.NewItemDto;
-import hu.pte.thesistopicbackend.model.Item;
-import hu.pte.thesistopicbackend.model.ItemConnectToGroup;
-import hu.pte.thesistopicbackend.model.ItemConnectToUser;
-import hu.pte.thesistopicbackend.repository.ItemConnectToGroupRepository;
-import hu.pte.thesistopicbackend.repository.ItemConnectToUserRepository;
-import hu.pte.thesistopicbackend.repository.ItemRepository;
+import hu.pte.thesistopicbackend.model.*;
+import hu.pte.thesistopicbackend.repository.*;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -22,13 +20,19 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final ItemConnectToGroupRepository itemConnectToGroupRepository;
     private final ItemConnectToUserRepository itemConnectToUserRepository;
+    private final GroupRepository groupRepository;
+    private final UserRepository userRepository;
 
     public ItemService(ItemRepository itemRepository,
                        ItemConnectToGroupRepository itemConnectToGroupRepository,
-                       ItemConnectToUserRepository itemConnectToUserRepository) {
+                       ItemConnectToUserRepository itemConnectToUserRepository,
+                       GroupRepository groupRepository,
+                       UserRepository userRepository) {
         this.itemRepository = itemRepository;
         this.itemConnectToGroupRepository = itemConnectToGroupRepository;
         this.itemConnectToUserRepository = itemConnectToUserRepository;
+        this.groupRepository = groupRepository;
+        this.userRepository = userRepository;
     }
 
     public Item createItem(NewItemDto newItemDto) {
@@ -39,21 +43,29 @@ public class ItemService {
                 .currency(newItemDto.getCurrency())
                 .mapUrl(newItemDto.getMapUrl())
                 .description(newItemDto.getDescription())
+                .paid(newItemDto.getPaidBy())
                 .build();
 
         itemRepository.save(newItem);
 
+        ItemConnectToGroupKey itemConnectToGroupKey = new ItemConnectToGroupKey((long) newItemDto.getGroupId(),newItem.getId());
+
         ItemConnectToGroup itemConnectToGroup = ItemConnectToGroup.builder()
-                .itemId(newItem.getId())
-                .groupId((long) newItemDto.getGroupId())
+                .id(itemConnectToGroupKey)
+                .item(newItem)
+                .group(groupRepository.findById((long) newItemDto.getGroupId()).orElseThrow(EntityNotFoundException::new))
                 .build();
 
         itemConnectToGroupRepository.save(itemConnectToGroup);
 
+
         for (int i = 0; i< newItemDto.getUsers().size(); i++) {
+
+            ItemConnectToUserKey itemConnectToUserKey = new ItemConnectToUserKey((long)newItemDto.getUsers().get(i),newItem.getId());
             ItemConnectToUser itemConnectToUser = ItemConnectToUser.builder()
-                    .itemId(newItem.getId())
-                    .userId(Long.valueOf(newItemDto.getUsers().get(i)))
+                    .id(itemConnectToUserKey)
+                    .item(newItem)
+                    .user(userRepository.findById((long)newItemDto.getUsers().get(i)).orElseThrow(EntityNotFoundException::new))
                     .build();
 
             itemConnectToUserRepository.save(itemConnectToUser);
@@ -64,28 +76,18 @@ public class ItemService {
 
     public List<Item> getAllItemByGroupId(Long groupId) {
 
-        ArrayList<ItemConnectToGroup> itemConnectToGroupArrayList = itemConnectToGroupRepository.findItemByGroupId(groupId);
-        ArrayList<Optional<Item>> items = new ArrayList<>();
+        List<Item> items = itemRepository.findByGroupId(groupId);
 
-        for (ItemConnectToGroup itemConnectToGroup: itemConnectToGroupArrayList) {
-            items.add(itemRepository.findById(itemConnectToGroup.getItemId()));
-        }
-
-        if (items.isEmpty()){
-            return null;
-        }
-        else{
-            List<Item> result = items.stream()
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .collect(Collectors.toList());
-            return result;
-        }
-
+        return items;
     }
 
     public Item getItemById(long itemId) {
         Item item = itemRepository.findById(itemId).orElseThrow(()-> new EntityNotFoundException());
         return item;
+    }
+
+    @Transactional
+    public void deleteItemById(Long itemId) {
+        itemRepository.deleteById(itemId);
     }
 }

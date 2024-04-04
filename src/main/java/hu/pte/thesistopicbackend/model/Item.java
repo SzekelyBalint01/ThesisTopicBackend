@@ -1,8 +1,11 @@
 package hu.pte.thesistopicbackend.model;
 
+import jakarta.persistence.*;
 import lombok.*;
 
-import jakarta.persistence.*;
+
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -11,7 +14,9 @@ import jakarta.persistence.*;
 @NoArgsConstructor
 @Builder
 @Table(name = "items")
+
 public class Item {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,5 +26,13 @@ public class Item {
     private String mapUrl;
     private String description;
     private Long paid;
+
+
+    @OneToMany(mappedBy = "item")
+    private List<ItemConnectToUser> itemConnectToUsers;
+
+
+    @OneToMany(mappedBy = "item")
+    private List<ItemConnectToGroup> itemConnectToGroups;
     // getters és setters
 }

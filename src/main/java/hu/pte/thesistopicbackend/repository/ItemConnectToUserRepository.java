@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Repository
 public interface ItemConnectToUserRepository extends JpaRepository<ItemConnectToUser, Long> {
@@ -16,6 +15,6 @@ public interface ItemConnectToUserRepository extends JpaRepository<ItemConnectTo
     ArrayList<ItemConnectToUser> findItemByUserId(Long UserId);
 
 
-    @Query("SELECT u FROM User u JOIN ItemConnectToUser icu ON u.id = icu.userId WHERE icu.itemId = :itemId")
+    @Query("SELECT u FROM User u JOIN ItemConnectToUser icu ON u.id = icu.user.id WHERE icu.item.id = :itemId")
     ArrayList<User> findUsersByItemId(@Param("itemId") Long itemId);
 }

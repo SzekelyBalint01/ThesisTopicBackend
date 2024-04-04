@@ -1,11 +1,11 @@
-/*
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS items;
-DROP TABLE IF EXISTS groups;
-DROP TABLE IF EXISTS groups_connect_to_user;
-DROP TABLE IF EXISTS item_connect_to_user;
+
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS items CASCADE;
+DROP TABLE IF EXISTS groups CASCADE;
+DROP TABLE IF EXISTS groups_connect_to_user CASCADE;
+DROP TABLE IF EXISTS item_connect_to_user CASCADE;
 DROP TABLE IF EXISTS dues;
-DROP TABLE IF EXISTS item_connect_to_groups;
+DROP TABLE IF EXISTS item_connect_to_groups CASCADE;
 
 
 
@@ -46,4 +46,3 @@ DROP TABLE IF EXISTS item_connect_to_groups;
                             group_id SERIAL,
                             item_id SERIAL
     );
-*/

@@ -11,9 +11,19 @@ import lombok.*;
 @Builder
 @Table(name = "itemConnectToGroups")
 public class ItemConnectToGroup {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private Long itemId;
-    private Long groupId;
+
+    @EmbeddedId
+    ItemConnectToGroupKey id;
+
+
+    @ManyToOne
+    @MapsId("itemId")
+    @JoinColumn(name = "item_id")
+    private Item item;
+
+
+    @ManyToOne
+    @MapsId("groupId")
+    @JoinColumn(name = "group_id")
+    private Group group;
 }

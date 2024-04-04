@@ -20,6 +20,6 @@ public class NewItemDto {
     private String currency;
     private String mapUrl;
     private String description;
-
+    private Long paidBy;
     private List<Integer> users;
 }

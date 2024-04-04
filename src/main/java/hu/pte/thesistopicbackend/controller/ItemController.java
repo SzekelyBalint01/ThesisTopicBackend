@@ -38,8 +38,13 @@ public class ItemController {
     @GetMapping("/getItem")
     public ResponseEntity<Item> getItemById(@RequestParam("itemId") int itemId){
 
-        Item items = itemService.getItemById((long) itemId);
+        Item items = itemService.getItemById(itemId);
 
         return new ResponseEntity<>(items, HttpStatus.OK);
+    }
+    @DeleteMapping("/deleteItem")
+    public ResponseEntity<Void> deleteItem(@RequestParam("itemId") int itemId){
+        itemService.deleteItemById((long) itemId);
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }

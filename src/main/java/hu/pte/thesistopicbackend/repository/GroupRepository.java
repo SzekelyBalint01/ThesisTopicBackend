@@ -1,9 +1,9 @@
 package hu.pte.thesistopicbackend.repository;
 
-import hu.pte.thesistopicbackend.model.GroupEssential;
+import hu.pte.thesistopicbackend.model.Group;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface GroupRepository extends JpaRepository<GroupEssential, Long> {
+public interface GroupRepository extends JpaRepository<Group, Long> {
 }

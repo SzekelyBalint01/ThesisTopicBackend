@@ -1,26 +1,31 @@
 package hu.pte.thesistopicbackend.model;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-
-@Entity
 @Getter
 @Setter
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Table(name = "itemConnectToUser")
-public class ItemConnectToUser {
+public
+class ItemConnectToUser {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private Long userId;
-    private Long itemId;
+    @EmbeddedId
+    ItemConnectToUserKey id;
+
+
+    @ManyToOne
+    @MapsId("userId")
+    @JoinColumn(name = "user_id")
+    private User user;
+
+
+    @ManyToOne
+    @MapsId("itemId")
+    @JoinColumn(name = "item_id")
+    private Item item;
 
     // getters és setters
 }

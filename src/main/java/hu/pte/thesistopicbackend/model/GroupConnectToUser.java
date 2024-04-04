@@ -11,13 +11,20 @@ import jakarta.persistence.*;
 @NoArgsConstructor
 @Builder
 @Table(name = "groupsConnectToUser")
-public class GroupConnectToUser {
+public
+class GroupConnectToUser {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private Long groupId;
-    private Long userId;
+    @EmbeddedId
+    GroupConnectToUserKey id;
 
-    // getters és setters
+    @ManyToOne
+    @MapsId("groupId")
+    @JoinColumn(name = "group_id")
+    private Group group;
+
+    @ManyToOne
+    @MapsId("userId")
+    @JoinColumn(name = "user_id")
+    private User user;
+
 }
