@@ -11,11 +11,8 @@ import java.util.Optional;
 
 @Service
 public class Registration {
-
-
     private final PasswordEncoderImpl passwordEncoderImpl;
     private final UserRepository userRepository;
-
 
     public Registration(PasswordEncoderImpl passwordEncoderImpl, UserRepository userRepository) {
         this.passwordEncoderImpl = passwordEncoderImpl;
@@ -44,5 +41,4 @@ public class Registration {
         }
         return false;
     }
-
 }

@@ -1,8 +1,11 @@
 package hu.pte.thesistopicbackend.dto;
 
+import hu.pte.thesistopicbackend.model.GroupConnectToUser;
 import hu.pte.thesistopicbackend.model.Item;
 
+import hu.pte.thesistopicbackend.model.ItemConnectToGroup;
 import hu.pte.thesistopicbackend.model.User;
+import jakarta.persistence.OneToMany;
 import lombok.*;
 
 import java.util.List;
@@ -18,7 +21,7 @@ public class GroupDto {
 
     private String groupName;
 
-    private List<String> users;
+    private List<ItemConnectToGroup> itemConnectToGroup;
 
-    private List<Item> items;
+    private List<GroupConnectToUser> groupConnectToUsers;
 }

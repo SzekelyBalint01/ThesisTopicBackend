@@ -25,4 +25,7 @@ public class User {
     @OneToMany(mappedBy = "user")
     List<ItemConnectToUser> itemConnectToUsers;
 
+    @OneToMany(mappedBy = "user")
+    List<GroupConnectToUser> groupConnectToUsers;
+
 }

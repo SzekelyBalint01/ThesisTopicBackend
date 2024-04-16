@@ -34,7 +34,7 @@ public class GroupController {
 
 
     @GetMapping("groupData")
-    public ResponseEntity<GroupDto> getGroupDataById(@RequestParam int groupId) throws FileNotFoundException {
+    public ResponseEntity<GroupDto> getGroupDataById(@RequestParam int groupId)  {
 
         GroupDto groupDto = groupService.getGroupById((long) groupId);
 
@@ -42,9 +42,9 @@ public class GroupController {
     }
 
     @GetMapping("/allGroup")
-    public ResponseEntity<List<Group>> getAllGroupByUserId(@RequestParam("userId") int userId){
+    public ResponseEntity<List<GroupDto>> getAllGroupByUserId(@RequestParam("userId") int userId){
 
-        List<Group> groups = groupService.getAllGroupByUserId((long) userId);
+        List<GroupDto> groups = groupService.getAllGroupByUserId((long) userId);
 
         return new ResponseEntity<>(groups, HttpStatus.OK);
     }
