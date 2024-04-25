@@ -16,13 +16,15 @@ class ItemConnectToUser {
     ItemConnectToUserKey id;
 
 
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
     @JoinColumn(name = "user_id")
     private User user;
 
 
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("itemId")
     @JoinColumn(name = "item_id")
     private Item item;

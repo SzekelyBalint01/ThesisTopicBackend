@@ -28,11 +28,11 @@ public class Item {
     private Long paid;
 
 
-    @OneToMany(mappedBy = "item")
+    @OneToMany(mappedBy = "item",fetch = FetchType.LAZY)
     private List<ItemConnectToUser> itemConnectToUsers;
 
 
-    @OneToMany(mappedBy = "item")
+    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
     private List<ItemConnectToGroup> itemConnectToGroups;
     // getters és setters
 }

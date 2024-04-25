@@ -2,20 +2,17 @@ package hu.pte.thesistopicbackend.dto;
 
 import lombok.*;
 
-import java.util.List;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class GroupDto {
+public class GroupUserDto {
 
     private Long id;
 
-    private String groupName;
+    private String username;
+    //ha minus akkor ő tartozik, ha plussz akkor neki tartoznak.
+    private double debt;
 
-    private List<ItemDto> items;
-
-    private List<UserDto> users;
 }

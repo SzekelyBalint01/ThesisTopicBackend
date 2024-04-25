@@ -17,12 +17,14 @@ class GroupConnectToUser {
     @EmbeddedId
     GroupConnectToUserKey id;
 
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("groupId")
     @JoinColumn(name = "group_id")
     private Group group;
 
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
     @JoinColumn(name = "user_id")
     private User user;

@@ -16,13 +16,13 @@ public class ItemConnectToGroup {
     ItemConnectToGroupKey id;
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("itemId")
     @JoinColumn(name = "item_id")
     private Item item;
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("groupId")
     @JoinColumn(name = "group_id")
     private Group group;

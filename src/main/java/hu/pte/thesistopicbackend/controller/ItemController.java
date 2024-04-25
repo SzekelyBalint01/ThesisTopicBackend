@@ -1,7 +1,10 @@
 package hu.pte.thesistopicbackend.controller;
 
+import hu.pte.thesistopicbackend.dto.ItemDto;
 import hu.pte.thesistopicbackend.dto.NewItemDto;
 import hu.pte.thesistopicbackend.model.Item;
+import hu.pte.thesistopicbackend.repository.ItemConnectToGroupRepository;
+import hu.pte.thesistopicbackend.repository.ItemConnectToUserRepository;
 import hu.pte.thesistopicbackend.service.ItemService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,38 +16,48 @@ import java.util.List;
 public class ItemController {
 
     private final ItemService itemService;
+    private final ItemConnectToGroupRepository itemConnectToGroupRepository;
+    private final ItemConnectToUserRepository itemConnectToUserRepository;
 
-    public ItemController(ItemService itemService) {
+    public ItemController(ItemService itemService,
+                          ItemConnectToGroupRepository itemConnectToGroupRepository,
+                          ItemConnectToUserRepository itemConnectToUserRepository) {
         this.itemService = itemService;
+        this.itemConnectToGroupRepository = itemConnectToGroupRepository;
+        this.itemConnectToUserRepository = itemConnectToUserRepository;
     }
 
     @PostMapping("/createItem")
-    public ResponseEntity<Item> createNewItem(@RequestBody NewItemDto newItemDto){
+    public ResponseEntity<ItemDto> createNewItem(@RequestBody NewItemDto newItemDto) {
 
-            Item newItem = itemService.createItem(newItemDto);
+        ItemDto newItem = itemService.createItem(newItemDto);
 
-            return new ResponseEntity<>(newItem, HttpStatus.OK);
+        return new ResponseEntity<>(newItem, HttpStatus.OK);
     }
 
 
-    @GetMapping("/getAllItem")
-    public ResponseEntity<List<Item>> getAllItem(@RequestParam("groupId") int groupId){
 
-          List<Item> items = itemService.getAllItemByGroupId((long) groupId);
+    @GetMapping("/getAllItem")
+    public ResponseEntity<List<ItemDto>> getAllItem(@RequestParam("groupId") int groupId) {
+
+        List<ItemDto> items = itemService.getAllItemByGroupId((long) groupId);
 
         return new ResponseEntity<>(items, HttpStatus.OK);
     }
 
     @GetMapping("/getItem")
-    public ResponseEntity<Item> getItemById(@RequestParam("itemId") int itemId){
+    public ResponseEntity<ItemDto> getItemById(@RequestParam("itemId") int itemId) {
 
-        Item items = itemService.getItemById(itemId);
+        ItemDto items = itemService.getItemById(itemId);
 
         return new ResponseEntity<>(items, HttpStatus.OK);
     }
+
     @DeleteMapping("/deleteItem")
-    public ResponseEntity<Void> deleteItem(@RequestParam("itemId") int itemId){
+    public ResponseEntity<Void> deleteItem(@RequestParam("itemId") int itemId) {
+        itemConnectToGroupRepository.deleteByItemId(itemId);
+        itemConnectToUserRepository.deleteByItemId(itemId);
         itemService.deleteItemById((long) itemId);
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

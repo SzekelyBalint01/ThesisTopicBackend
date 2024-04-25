@@ -2,7 +2,6 @@ package hu.pte.thesistopicbackend.service;
 
 import hu.pte.thesistopicbackend.dto.CredentialsDto;
 import hu.pte.thesistopicbackend.dto.UserDto;
-import hu.pte.thesistopicbackend.model.User;
 import hu.pte.thesistopicbackend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -29,9 +28,14 @@ public class Login {
     }
 
 
-    public Optional<User> getUserByEmail(CredentialsDto credentialsDto){
+    public Optional<UserDto> getUserByEmail(CredentialsDto credentialsDto){
 
-        Optional<User> user = userRepository.findByEmail(credentialsDto.getEmail());
+        Optional<UserDto> user = userRepository.findByEmail(credentialsDto.getEmail()).stream().map(userdto -> {
+            return UserDto.builder()
+                    .id(userdto.getId())
+                    .username(userdto.getUsername())
+                    .build();
+        }).findFirst();
 
         return user;
     }

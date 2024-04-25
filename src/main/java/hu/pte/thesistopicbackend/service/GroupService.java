@@ -1,8 +1,6 @@
 package hu.pte.thesistopicbackend.service;
 
-import hu.pte.thesistopicbackend.dto.GroupDto;
-import hu.pte.thesistopicbackend.dto.InviteUserDto;
-import hu.pte.thesistopicbackend.dto.NewGroupDto;
+import hu.pte.thesistopicbackend.dto.*;
 import hu.pte.thesistopicbackend.model.*;
 import hu.pte.thesistopicbackend.repository.*;
 import jakarta.persistence.EntityNotFoundException;
@@ -44,10 +42,9 @@ public class GroupService {
         Group group = Group.builder()
                 .groupName(newGroupDto.getGroupName())
                 .build();
-
         groupRepository.save(group);
 
-        GroupConnectToUserKey groupConnectToUserKey = new GroupConnectToUserKey(group.getId(),userId);
+        GroupConnectToUserKey groupConnectToUserKey = new GroupConnectToUserKey(group.getId(), userId);
 
         GroupConnectToUser newConnection = GroupConnectToUser.builder()
                 .id(groupConnectToUserKey)
@@ -57,49 +54,51 @@ public class GroupService {
 
         groupConnectToUserRepository.save(newConnection);
 
-        GroupDto groupDto = GroupDto.builder()
-                .id(group.getId())
-                .groupName(group.getGroupName())
-                .build();
 
-        return groupDto;
+        Group newGroup = groupRepository.findById(group.getId()).orElseThrow(EntityNotFoundException::new);
+
+        return GroupDto.builder()
+                .id(newGroup.getId())
+                .groupName(newGroup.getGroupName())
+                .build();
     }
 
-    public GroupDto getGroupById(Long groupId){
+    public GroupDto getGroupById(Long groupId) {
 
+        Group group = groupRepository.findById(groupId).orElseThrow(EntityNotFoundException::new);
 
-        Group group = groupRepository.findById(groupId).orElseThrow(()-> new EntityNotFoundException());
-
-        GroupDto groupDto = GroupDto.builder()
+        return GroupDto.builder()
                 .id(group.getId())
                 .groupName(group.getGroupName())
-                .itemConnectToGroup(group.getItemConnectToGroup())
-                .groupConnectToUsers(group.getGroupConnectToUsers())
+                .items(group.getItemConnectToGroup().stream().map(ItemConnectToGroup::getItem).map(this::mapItemToItemDTO).toList())
                 .build();
-
-
-        return groupDto;
     }
 
-    public List<GroupDto> getAllGroupByUserId(Long userId){
-        List<GroupConnectToUser> groups = groupConnectToUserRepository.findByUserId(userId) ;
-        List<GroupDto> groupEssentials = new ArrayList<>();
+    public ItemDto mapItemToItemDTO(Item item) {
 
-        for (GroupConnectToUser groupConnectToUser: groups) {
-            Group group = groupRepository.findById(groupConnectToUser.getGroup().getId()).orElseThrow(()-> new EntityNotFoundException());
+        return ItemDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .price(item.getPrice())
+                .currency(item.getCurrency())
+                .mapUrl(item.getMapUrl())
+                .description(item.getDescription())
+                .paid(item.getPaid())
+                .build();
+    }
 
-            GroupDto groupDto = GroupDto.builder()
-                    .id(group.getId())
-                    .groupName(group.getGroupName())
-                    .groupConnectToUsers(group.getGroupConnectToUsers())
-                    .itemConnectToGroup(group.getItemConnectToGroup())
-                    .build();
+    public List<GroupDto> getAllGroupByUserId(Long userId) {
 
-            groupEssentials.add(groupDto);
-        }
+        List<GroupConnectToUser>  groupConnectToUserList = groupConnectToUserRepository.findByUserId(userId);
 
+        List<GroupDto> groupDtoList;
 
-        return groupEssentials;
+        groupDtoList = groupConnectToUserList.stream().map(groupConnectToUser -> GroupDto.builder()
+                .groupName(groupConnectToUser.getGroup().getGroupName())
+                .id(groupConnectToUser.getId().getGroupId())
+                .build()).collect(Collectors.toList());
+
+        return groupDtoList;
     }
 
 
@@ -107,11 +106,11 @@ public class GroupService {
 
         Optional<User> user = userRepository.findByEmail(inviteUserDto.getEmail());
 
-        boolean exits = groupConnectToUserRepository.existsByGroupIdAndUserId((long) inviteUserDto.getGroupId(), user.get().getId());
+        boolean exists = groupConnectToUserRepository.existsByGroupIdAndUserId((long) inviteUserDto.getGroupId(), user.get().getId());
 
-        if (user.isPresent() && exits == false) {
+        if (user.isPresent() && exists == false) {
 
-            GroupConnectToUserKey groupConnectToUserKey = new GroupConnectToUserKey((long) inviteUserDto.getGroupId(),user.get().getId());
+            GroupConnectToUserKey groupConnectToUserKey = new GroupConnectToUserKey((long) inviteUserDto.getGroupId(), user.get().getId());
             GroupConnectToUser groupConnectToUser = GroupConnectToUser.builder()
                     .id(groupConnectToUserKey)
                     .user(user.get())
@@ -119,19 +118,17 @@ public class GroupService {
                     .build();
             groupConnectToUserRepository.save(groupConnectToUser);
             return "Invite successful";
-        }
-        else{
+        } else {
             return "User does not exists or already exists";
         }
     }
 
-    public List<GroupUser>  getAllUserByGroupId(InviteUserDto inviteUserDto) {
+    public List<GroupUser> getAllUserByGroupId(InviteUserDto inviteUserDto) {
 
         ArrayList<GroupConnectToUser> groupConnectToUsers = groupConnectToUserRepository.findUsersByGroupId((long) inviteUserDto.getGroupId());
 
         return getUserList(groupConnectToUsers, inviteUserDto.getGroupId());
     }
-
 
 
     /*
@@ -172,36 +169,57 @@ public class GroupService {
         return groupUsers;
     }
  */
-    public  List<GroupUser> getAllUserByGroupId(Long groupId, int userId){
-/*
-        List<Item> items = itemService.getAllItemByGroupId(groupId);
+    public List<GroupUserDto> getAllUserByGroupId(Long groupId, int userId) {
 
-        ArrayList<GroupConnectToUser> groupUsers = groupConnectToUserRepository.findUsersByGroupId(groupId);
+        List<Item> itemList = itemRepository.findByGroupId(groupId);
 
-        groupUsers.stream().map(groupConnectToUser -> {
-                 items.stream().filter(
-                    (item)->
-                        !Objects.equals(item.getPaid(), groupConnectToUser.getUser().getId())
-            ).map(item->{
-                int debt = item.getPrice() / item.getItemConnectToUsers().size();
-                return debt;
-            })
-        });
-        */
-        return null;
+        List<GroupUserDto> groupUserDtoList = userRepository.findAllByGroupId(groupId).stream()
+                .map(user -> GroupUserDto.builder()
+                    .id(user.getId())
+                    .username(user.getUsername())
+                    .build()).toList();
+
+
+        for (Item item: itemList){
+            if(item.getPaid()!=userId && item.getItemConnectToUsers().stream().anyMatch(itemConnectToUser -> itemConnectToUser.getUser().getId() == userId)){
+                Long paid = item.getPaid();
+                for (GroupUserDto groupUserDto: groupUserDtoList){
+                    if (groupUserDto.getId().equals(paid)){
+                        groupUserDto.setDebt(
+                                groupUserDto.getDebt()+
+                                        (item.getPrice()/item.getItemConnectToUsers().size()));
+                    }
+                }
+            }
+
+            if (item.getPaid()==userId){
+                for (GroupUserDto groupUserDto: groupUserDtoList){
+                    for (ItemConnectToUser itemConnectToUser : item.getItemConnectToUsers()) {
+                        if (itemConnectToUser.getId().getUserId().equals(groupUserDto.getId())){
+                            groupUserDto.setDebt(
+                                    (double) groupUserDto.getDebt()-
+                                            (item.getPrice()/item.getItemConnectToUsers().size()));
+                        }
+                    }
+                }
+            }
+        }
+
+
+
+        return groupUserDtoList;
 
     }
 
     private List<GroupUser> getUserList(ArrayList<GroupConnectToUser> groupConnectToUsers, int groupId) {
         ArrayList<GroupUser> groupUsers = new ArrayList<>();
 
-        for ( GroupConnectToUser users: groupConnectToUsers) {
+        for (GroupConnectToUser users : groupConnectToUsers) {
 
             Optional<User> user = userRepository.findById(users.getUser().getId());
 
 
-
-            if (user.isPresent()){
+            if (user.isPresent()) {
 
                 GroupUser groupUser = GroupUser.builder()
                         .id(user.get().getId())

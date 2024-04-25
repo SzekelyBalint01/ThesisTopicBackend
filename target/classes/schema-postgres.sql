@@ -4,7 +4,6 @@ DROP TABLE IF EXISTS items CASCADE;
 DROP TABLE IF EXISTS groups CASCADE;
 DROP TABLE IF EXISTS groups_connect_to_user CASCADE;
 DROP TABLE IF EXISTS item_connect_to_user CASCADE;
-DROP TABLE IF EXISTS dues;
 DROP TABLE IF EXISTS item_connect_to_groups CASCADE;
 
 
@@ -33,16 +32,18 @@ DROP TABLE IF EXISTS item_connect_to_groups CASCADE;
     );
 
     CREATE TABLE groups_connect_to_user(
-                                       group_id int,
-                                       user_id int
+                                       group_id bigint,
+                                       user_id bigint
     );
 
     CREATE TABLE item_connect_to_user(
-                                      user_id int,
-                                      item_id int
+                                      user_id bigint,
+                                      item_id bigint
     );
 
     CREATE TABLE item_connect_to_groups(
-                            group_id SERIAL,
-                            item_id SERIAL
+                            group_id bigint,
+                            item_id bigint
     );
+
+

@@ -1,9 +1,6 @@
 package hu.pte.thesistopicbackend.controller;
 
-import hu.pte.thesistopicbackend.dto.GroupDto;
-import hu.pte.thesistopicbackend.dto.InviteUserDto;
-import hu.pte.thesistopicbackend.dto.NewGroupDto;
-import hu.pte.thesistopicbackend.dto.UsersListDto;
+import hu.pte.thesistopicbackend.dto.*;
 import hu.pte.thesistopicbackend.model.Group;
 import hu.pte.thesistopicbackend.model.GroupUser;
 import hu.pte.thesistopicbackend.service.GroupService;
@@ -64,9 +61,9 @@ public class GroupController {
 
 
     @GetMapping("/getAllGroupUser")
-    public ResponseEntity<List<GroupUser>> getAllGroupUser(@RequestParam("groupId") int groupId, int userId){
+    public ResponseEntity<List<GroupUserDto>> getAllGroupUser(@RequestParam("groupId") int groupId, int userId){
 
-        List<GroupUser> usersList = groupService.getAllUserByGroupId((long)groupId, userId);
+        List<GroupUserDto> usersList = groupService.getAllUserByGroupId((long)groupId, userId);
 
         return new ResponseEntity<>(usersList,HttpStatus.OK);
     }

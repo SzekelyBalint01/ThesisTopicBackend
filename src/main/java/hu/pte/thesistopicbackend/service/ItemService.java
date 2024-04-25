@@ -1,16 +1,15 @@
 package hu.pte.thesistopicbackend.service;
 
+import hu.pte.thesistopicbackend.dto.ItemDto;
 import hu.pte.thesistopicbackend.dto.NewItemDto;
+import hu.pte.thesistopicbackend.dto.UserDto;
 import hu.pte.thesistopicbackend.model.*;
 import hu.pte.thesistopicbackend.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,7 +34,7 @@ public class ItemService {
         this.userRepository = userRepository;
     }
 
-    public Item createItem(NewItemDto newItemDto) {
+    public ItemDto createItem(NewItemDto newItemDto) {
 
         Item newItem = Item.builder()
                 .name(newItemDto.getName())
@@ -52,42 +51,76 @@ public class ItemService {
 
         ItemConnectToGroup itemConnectToGroup = ItemConnectToGroup.builder()
                 .id(itemConnectToGroupKey)
-                .item(newItem)
+                .item(itemRepository.findById(newItem.getId()).orElseThrow(EntityNotFoundException::new))
                 .group(groupRepository.findById((long) newItemDto.getGroupId()).orElseThrow(EntityNotFoundException::new))
                 .build();
 
         itemConnectToGroupRepository.save(itemConnectToGroup);
 
-
-        for (int i = 0; i< newItemDto.getUsers().size(); i++) {
-
-            ItemConnectToUserKey itemConnectToUserKey = new ItemConnectToUserKey((long)newItemDto.getUsers().get(i),newItem.getId());
+        for (Integer user: newItemDto.getUsers()) {
+            ItemConnectToUserKey itemConnectToUserKey = new ItemConnectToUserKey((long)user, newItem.getId());
             ItemConnectToUser itemConnectToUser = ItemConnectToUser.builder()
                     .id(itemConnectToUserKey)
-                    .item(newItem)
-                    .user(userRepository.findById((long)newItemDto.getUsers().get(i)).orElseThrow(EntityNotFoundException::new))
+                    .user(userRepository.findById((long) user).orElseThrow(EntityNotFoundException::new))
+                    .item(itemRepository.findById(newItem.getId()).orElseThrow(EntityNotFoundException::new))
                     .build();
-
             itemConnectToUserRepository.save(itemConnectToUser);
         }
 
-        return newItem;
+        Item item = itemRepository.findById(newItem.getId()).orElseThrow(EntityNotFoundException::new);
+
+
+        return mapItemToItemDTO(item);
     }
 
-    public List<Item> getAllItemByGroupId(Long groupId) {
+    public List<ItemDto> getAllItemByGroupId(Long groupId) {
 
         List<Item> items = itemRepository.findByGroupId(groupId);
 
-        return items;
+        return items.stream().map(item -> ItemDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .build()).toList();
     }
 
-    public Item getItemById(long itemId) {
-        Item item = itemRepository.findById(itemId).orElseThrow(()-> new EntityNotFoundException());
-        return item;
+
+    public ItemDto mapItemToItemDTO(Item item) {
+
+        return ItemDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .price(item.getPrice())
+                .currency(item.getCurrency())
+                .mapUrl(item.getMapUrl())
+                .description(item.getDescription())
+                .paid(item.getPaid())
+                .build();
+    }
+    public ItemDto getItemById(long itemId) {
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new EntityNotFoundException());
+
+
+        return ItemDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .price(item.getPrice())
+                .currency(item.getCurrency())
+                .mapUrl(item.getMapUrl())
+                .description(item.getDescription())
+                .paid(item.getPaid())
+                .users(item.getItemConnectToUsers().stream().map(user -> {
+                    return UserDto.builder()
+                            .id(user.getUser().getId())
+                            .username(user.getUser().getUsername())
+                            .build();
+                }).toList())
+                .build();
     }
 
     @Transactional
     public void deleteItemById(Long itemId) {
         itemRepository.deleteById(itemId);
     }
+
+
 }

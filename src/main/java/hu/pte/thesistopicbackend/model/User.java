@@ -22,10 +22,10 @@ public class User {
     private byte[] passwordSalt;
     private byte[] passwordHash;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     List<ItemConnectToUser> itemConnectToUsers;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     List<GroupConnectToUser> groupConnectToUsers;
 
 }
