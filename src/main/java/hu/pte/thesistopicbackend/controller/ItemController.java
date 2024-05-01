@@ -2,7 +2,6 @@ package hu.pte.thesistopicbackend.controller;
 
 import hu.pte.thesistopicbackend.dto.ItemDto;
 import hu.pte.thesistopicbackend.dto.NewItemDto;
-import hu.pte.thesistopicbackend.model.Item;
 import hu.pte.thesistopicbackend.repository.ItemConnectToGroupRepository;
 import hu.pte.thesistopicbackend.repository.ItemConnectToUserRepository;
 import hu.pte.thesistopicbackend.service.ItemService;

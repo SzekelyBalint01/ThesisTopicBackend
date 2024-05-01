@@ -13,6 +13,7 @@ import java.util.List;
 public interface GroupConnectToUserRepository extends JpaRepository<GroupConnectToUser, Long> {
     ArrayList<GroupConnectToUser> findUsersByGroupId(Long groupId);
 
+    @Query("select g from GroupConnectToUser g where g.user.id = ?1")
     List<GroupConnectToUser> findByUserId(Long userId);
 
 

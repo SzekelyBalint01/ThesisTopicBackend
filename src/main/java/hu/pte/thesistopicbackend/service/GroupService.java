@@ -169,7 +169,8 @@ public class GroupService {
         return groupUsers;
     }
  */
-    public List<GroupUserDto> getAllUserByGroupId(Long groupId, int userId) {
+    public List<GroupUserDto> getAllUserByGroupId(Long groupId, int userId, String currency) {
+
 
         List<Item> itemList = itemRepository.findByGroupId(groupId);
 
@@ -179,32 +180,56 @@ public class GroupService {
                     .username(user.getUsername())
                     .build()).toList();
 
+        for (Item item: itemList) {
 
-        for (Item item: itemList){
-            if(item.getPaid()!=userId && item.getItemConnectToUsers().stream().anyMatch(itemConnectToUser -> itemConnectToUser.getUser().getId() == userId)){
-                Long paid = item.getPaid();
-                for (GroupUserDto groupUserDto: groupUserDtoList){
-                    if (groupUserDto.getId().equals(paid)){
-                        groupUserDto.setDebt(
-                                groupUserDto.getDebt()+
-                                        (item.getPrice()/item.getItemConnectToUsers().size()));
-                    }
-                }
-            }
+            float pricePerPerson = (float)item.getPrice()/ (float) item.getItemConnectToUsers().size();
 
-            if (item.getPaid()==userId){
-                for (GroupUserDto groupUserDto: groupUserDtoList){
-                    for (ItemConnectToUser itemConnectToUser : item.getItemConnectToUsers()) {
-                        if (itemConnectToUser.getId().getUserId().equals(groupUserDto.getId())){
-                            groupUserDto.setDebt(
-                                    (double) groupUserDto.getDebt()-
-                                            (item.getPrice()/item.getItemConnectToUsers().size()));
+            //én fizettem és benne vagyok az itemben
+            if (item.getPaid() == userId && item.getItemConnectToUsers().stream().anyMatch(itemConnectToUser -> itemConnectToUser.getUser().getId() == userId)){
+                for (GroupUserDto groupUser :groupUserDtoList) {
+                    if (item.getItemConnectToUsers().stream().anyMatch(itemConnectToUser -> itemConnectToUser.getUser().getId().equals(groupUser.getId()))){
+                        if (groupUser.getId() !=userId){
+                            float value = groupUser.getOwe();
+                            value = value + pricePerPerson;
+                            groupUser.setOwe(value);
                         }
                     }
                 }
             }
-        }
 
+            //nem én fizettem de benne vagyok az itemben
+            if (item.getPaid() != userId && item.getItemConnectToUsers().stream().anyMatch(itemConnectToUser -> itemConnectToUser.getUser().getId() == userId)){
+                for (GroupUserDto groupUser :groupUserDtoList) {
+                    if (item.getItemConnectToUsers().stream().anyMatch(itemConnectToUser -> itemConnectToUser.getUser().getId() == userId)){
+                        if (groupUser.getId().longValue() == item.getPaid().longValue()){
+                            float value = groupUser.getDebt();
+                            value = value + pricePerPerson;
+                            groupUser.setDebt(value);
+                        }
+                    }
+                }
+            }
+
+
+        }
+        for (GroupUserDto groupUserDto: groupUserDtoList) {
+
+            if (groupUserDto.getOwe() == groupUserDto.getDebt()){
+                groupUserDto.setOwe(0);
+                groupUserDto.setDebt(0);
+            }
+
+            if (groupUserDto.getOwe()<groupUserDto.getDebt()){
+                float value = groupUserDto.getDebt()-groupUserDto.getOwe();
+                groupUserDto.setDebt(value);
+                groupUserDto.setOwe(0);
+            }
+            if (groupUserDto.getOwe()>groupUserDto.getDebt()){
+                float value = groupUserDto.getOwe()-groupUserDto.getDebt();
+                groupUserDto.setOwe(value);
+                groupUserDto.setDebt(0);
+            }
+        }
 
 
         return groupUserDtoList;

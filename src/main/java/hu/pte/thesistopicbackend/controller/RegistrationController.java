@@ -1,7 +1,6 @@
 package hu.pte.thesistopicbackend.controller;
 
 import hu.pte.thesistopicbackend.dto.UserDto;
-import hu.pte.thesistopicbackend.model.User;
 import hu.pte.thesistopicbackend.service.Registration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

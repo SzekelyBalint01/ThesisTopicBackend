@@ -14,7 +14,7 @@ public class CurrencyApiService {
 
     public int exchange(String[] args) {
         try {
-            String apiKey = "cur_live_jBVugcLcA1DxNELKVZhrk9OVTc9nhf2KNOCvIG2a";
+            String apiKey = "your-api-key";
             String baseCurrency = "USD";
             String targetCurrencies = "HUF";
 

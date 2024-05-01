@@ -1,14 +1,12 @@
 package hu.pte.thesistopicbackend.controller;
 
 import hu.pte.thesistopicbackend.dto.*;
-import hu.pte.thesistopicbackend.model.Group;
 import hu.pte.thesistopicbackend.model.GroupUser;
 import hu.pte.thesistopicbackend.service.GroupService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.FileNotFoundException;
 import java.util.List;
 
 @RestController
@@ -61,9 +59,9 @@ public class GroupController {
 
 
     @GetMapping("/getAllGroupUser")
-    public ResponseEntity<List<GroupUserDto>> getAllGroupUser(@RequestParam("groupId") int groupId, int userId){
+    public ResponseEntity<List<GroupUserDto>> getAllGroupUser(@RequestParam("groupId") int groupId, int userId, String currency){
 
-        List<GroupUserDto> usersList = groupService.getAllUserByGroupId((long)groupId, userId);
+        List<GroupUserDto> usersList = groupService.getAllUserByGroupId((long)groupId, userId, currency);
 
         return new ResponseEntity<>(usersList,HttpStatus.OK);
     }

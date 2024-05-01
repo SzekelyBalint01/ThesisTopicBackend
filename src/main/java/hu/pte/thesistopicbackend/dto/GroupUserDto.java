@@ -12,7 +12,11 @@ public class GroupUserDto {
     private Long id;
 
     private String username;
-    //ha minus akkor ő tartozik, ha plussz akkor neki tartoznak.
-    private double debt;
+
+    //ő tartozok nekem
+    private float owe;
+
+    // én tartozok neki
+    private float debt;
 
 }
