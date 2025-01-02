@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: udemx
+      POSTGRES_USER: udemx
+      POSTGRES_PASSWORD: udemx
+    ports:
+      - "1235:5432"
+    volumes:
+      - udemx:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - udemx-network
+
+  app:
+    image: szekelybalint01/car-rent-app:latest
+    container_name: car-rent-app
+    volumes:
+      - /var/log/car-rent-app:/var/log/car-rent-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/udemx
+      SPRING_DATASOURCE_USERNAME: udemx
+      SPRING_DATASOURCE_PASSWORD: udemx
+    networks:
+      - udemx-network
+
+volumes:
+  udemx:
+
+networks:
+  udemx-network:
+    driver: bridge
