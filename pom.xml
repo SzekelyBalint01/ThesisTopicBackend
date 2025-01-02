@@ -8,8 +8,9 @@
         <version>3.1.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
+    <packaging>jar</packaging>
     <groupId>hu.pte</groupId>
-    <artifactId>ThesisTopic-backend</artifactId>
+    <artifactId>thesis</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>ThesisTopic-backend</name>
     <description>ThesisTopic-backend</description>
@@ -76,7 +77,15 @@
                     </excludes>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+            </plugin>
         </plugins>
+
+        <directory>target</directory>
+        <finalName>thesis-0.0.1-SNAPSHOT</finalName>
     </build>
 
 </project>
