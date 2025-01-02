@@ -15,10 +15,10 @@ services:
       - udemx-network
 
   app:
-    image: szekelybalint01/car-rent-app:latest
-    container_name: car-rent-app
+    image: szekelybalint01/thesis-app:latest
+    container_name: thesis
     volumes:
-      - /var/log/car-rent-app:/var/log/car-rent-app
+      - /var/log/thesis-app:/var/log/thesis-app
     ports:
       - "8080:8080"
     depends_on:
