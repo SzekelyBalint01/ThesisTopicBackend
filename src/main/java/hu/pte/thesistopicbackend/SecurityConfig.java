@@ -20,7 +20,7 @@ public class SecurityConfig {
                 .cors()
                 .configurationSource(request -> {
                     CorsConfiguration corsConfig = new CorsConfiguration();
-                    corsConfig.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+                    corsConfig.setAllowedOrigins(Arrays.asList("http://ec2-18-184-55-200.eu-central-1.compute.amazonaws.com:8080"));
                     corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
                     corsConfig.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization"));
                     return corsConfig;
