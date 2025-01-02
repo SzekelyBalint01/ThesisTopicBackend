@@ -36,7 +36,7 @@ jobs:
                               "files": {
                                       "collect_list": [
                                           {
-                                              "file_path": "/var/log/car-rent-app/car-rent-app-logs.log",
+                                              "file_path": "/var/log/thesis-app/thesis-app-logs.log",
                                               "log_group_name": "car-rent-app-logs",
                                               "log_stream_name": "{instance_id}",
                                               "timezone": "UTC"
@@ -57,8 +57,8 @@ jobs:
 
             sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a status
             sudo useradd -r -s /sbin/nologin cloudwatch-agent-user
-            sudo chown cloudwatch-agent-user:cloudwatch-agent-user /var/log/car-rent-app
-            sudo chmod -R 755 /var/log/car-rent-app
+            sudo chown cloudwatch-agent-user:cloudwatch-agent-user /var/log/thesis-app
+            sudo chmod -R 755 /var/log/thesis-app
             
             CONFIG_PATH="/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.toml"
             
@@ -84,8 +84,8 @@ jobs:
             [logs]
             logs_collected = { files = { collect_list = [
             {
-            file_path = "/var/log/car-rent-app/application.log",
-            log_group_name = "car-rent-app",
+            file_path = "/var/log/thesis-app/application.log",
+            log_group_name = "thesis-app",
             log_stream_name = "{instance_id}",
             timestamp_format = "%Y-%m-%d %H:%M:%S"
             }
